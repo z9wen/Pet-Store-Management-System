@@ -1,0 +1,23 @@
+# Ignore build directories
+build/
+build_release/
+
+# Ignore testing directory
+Testing/
+
+# Ignore editor and tool-generated files
+.cache/
+.clangd/
+.vs/
+.DS_Store
+.idea/
+.vscode/
+
+# Ignore CMake generated files
+CMakeFiles/
+
+# Ignore Git itself (though this line might be a typo)
+.gitignore
+
+#Cmake
+cmake-build-debug

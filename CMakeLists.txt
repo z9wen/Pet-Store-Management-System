@@ -47,28 +47,19 @@ set(CMAKE_CXX_EXE_LINKER_FLAGS_RELWITHDEBINFO_INIT "-fsanitize=address,undefined
 # Enable CTest for testing
 enable_testing()
 
-# Add main executable
+# 主程序
 add_executable(main_exe src/main.cpp)
 
-# Fetch Catch2 if you don't have it locally
-include(FetchContent)
-FetchContent_Declare(
-        catch
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG        v3.0.1
-)
-FetchContent_MakeAvailable(catch)
-
-# Add the test executable
+# 测试程序
 add_executable(main_tests tests/main.test.cpp ../lib/catch_amalgamated.cpp)
-
-# Link Catch2 to the test executable
-target_link_libraries(main_tests PRIVATE Catch2::Catch2WithMain)
 
 # Register the tests
 add_test(NAME main_test COMMAND main_tests)
 
-# 修改 Catch2 的编译选项
-target_compile_options(Catch2 PRIVATE -Wno-unused-but-set-variable)
+# 设置编译选项，禁用未使用的变量警告（仅针对测试目标）
+target_compile_options(main_tests PRIVATE -Wno-unused-but-set-variable)
+
+
+
 
 

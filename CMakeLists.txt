@@ -48,10 +48,14 @@ set(CMAKE_CXX_EXE_LINKER_FLAGS_RELWITHDEBINFO_INIT "-fsanitize=address,undefined
 enable_testing()
 
 # 主程序
-add_executable(main_exe src/main.cpp)
+add_executable(main_exe src/main.cpp
+        src/test.h
+        src/test.cpp)
 
 # 测试程序
-add_executable(main_tests tests/main.test.cpp ../lib/catch_amalgamated.cpp)
+add_executable(main_tests tests/main.test.cpp ../lib/catch_amalgamated.cpp
+        src/test.h
+        src/test.cpp)
 
 # Register the tests
 add_test(NAME main_test COMMAND main_tests)

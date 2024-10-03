@@ -1,5 +1,5 @@
 #include "../lib/catch_amalgamated.hpp"
-#include "../src/main.cpp"
+#include "../src/test.h"
 
 #include <iostream>
 

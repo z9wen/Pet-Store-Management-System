@@ -3,10 +3,9 @@
 
 #include <iostream>
 
-TEST_CASE("main test") {
+TEST_CASE("test for test") {
     int a = 10;
     int b = 20;
-    int c = plus(a, b);
+    int c = plus(a,b);
     CHECK(c == 30);
-
 }

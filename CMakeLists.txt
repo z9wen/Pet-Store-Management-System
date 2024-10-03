@@ -24,11 +24,11 @@ add_compile_options(
         # 可选项（根据需求启用）
         # -Wconversion                    # 警告隐式类型转换，可能会触发大量警告
         # -Wdouble-promotion              # 警告 float 被提升为 double 的情况，视情况启用
-        # -Woverloaded-virtual            # 警告派生类隐藏了基类的虚函数，适合多态场景
-        # -Wdeprecated-copy-dtor          # 警告不推荐的拷贝构造函数或析构函数
+        -Woverloaded-virtual            # 警告派生类隐藏了基类的虚函数，适合多态场景
+        -Wdeprecated-copy-dtor          # 警告不推荐的拷贝构造函数或析构函数
         # -Wold-style-cast                # 警告 C 风格的类型转换，建议使用 C++ 风格
-        # -Wzero-as-null-pointer-constant # 警告使用 0 作为空指针，建议使用 nullptr
-        # -Wsuggest-override              # 建议在虚函数重写时使用 override 关键字
+        -Wzero-as-null-pointer-constant # 警告使用 0 作为空指针，建议使用 nullptr
+        -Wsuggest-override              # 建议在虚函数重写时使用 override 关键字
         # -Wcast-align                    # 警告强制类型转换可能导致的内存对齐问题
         # -Wformat=2                      # 更严格的格式化字符串检查，主要用于 printf/scanf 等
 )

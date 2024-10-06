@@ -52,7 +52,11 @@ add_executable(main_exe src/main.cpp
         src/test.h
         src/test.cpp
         src/database_ini.cpp
-        src/database_ini.h)
+        src/database_ini.h
+        src/database_drop.cpp
+        src/database_drop.h
+        src/pgsql_superuser.cpp
+        src/pgsql_superuser.h)
 
 # 测试程序
 add_executable(main_tests tests/main.test.cpp ../lib/catch_amalgamated.cpp
@@ -65,6 +69,19 @@ add_test(NAME main_test COMMAND main_tests)
 # 设置编译选项，禁用未使用的变量警告（仅针对测试目标）
 target_compile_options(main_tests PRIVATE -Wno-unused-but-set-variable)
 
+
+if(APPLE)
+    # macOS
+#    find_package(SQLite3 REQUIRED)
+    find_package(PostgreSQL REQUIRED)
+    target_link_libraries(main_exe PRIVATE  PostgreSQL::PostgreSQL)
+
+elseif(UNIX)
+    # Linux
+#    find_package(SQLite3 REQUIRED)
+    find_package(PostgreSQL REQUIRED)
+    target_link_libraries(main_exe PRIVATE  PostgreSQL::PostgreSQL)
+endif()
 
 
 

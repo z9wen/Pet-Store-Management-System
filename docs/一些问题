@@ -1,0 +1,20 @@
+pgsql安装
+mac
+brew install libpq
+
+输入brew --prefix libpq
+会输出类似 /opt/homebrew/opt/libpq 的路径。
+
+ls /opt/homebrew/opt/libpq/include/libpq-fe.h
+确认 libpq-fe.h 文件是否存在于 include 目录下
+
+通过设置环境变量让系统自动找到 libpq 的头文件和库文件。
+export LDFLAGS="-L/opt/homebrew/opt/libpq/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libpq/include"
+重新加载 .zshrc
+source ~/.zshrc
+然后：
+brew link --overwrite --force libpq
+==================================================
+Debian/Ubuntu
+sudo apt-get install libpq-dev

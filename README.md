@@ -14,16 +14,18 @@
 ## 2. Tech Stack
 
 ### 2.1 Backend
-- **Language**: C++  
+- **Language**: C++
   - Responsible for core business logic, such as user management, order processing, and inventory management.
 
-- **SQLite**: 
+- **PostgreSQL**:
   - Used for persistent data storage such as user information, order records, and inventory data.
-  - Lightweight and easy to deploy, suitable for small projects, but may have limitations with high concurrency.
+  - PostgreSQL is a powerful, open-source relational database management system that supports advanced features such as ACID compliance, high concurrency, and scalability, making it more suitable for medium to large projects or applications with higher data volume or complexity.
+  - Provides robust support for transactions and concurrent access, addressing limitations that SQLite might have in handling multiple simultaneous database operations.
 
-- **Redis**: 
+- **Redis**:
   - Acts as both a cache database and message queue.
-  - Redis Streams will be used for message queuing, handling asynchronous tasks, and alleviating SQLite's concurrency limitations.
+  - Redis Streams will be used for message queuing, handling asynchronous tasks, and complementing PostgreSQL's performance by offloading some real-time processing and data caching.
+  - Redis helps reduce the load on PostgreSQL by caching frequently accessed data and managing message-based communication between services.
 
 ### 2.2 Frontend
 - **HTML**:  
@@ -110,38 +112,88 @@ The system uses C++ as the backend language, with Redis Streams handling asynchr
 
 ## 4. Database Design
 
-### 4.1 SQLite Database
+### 4.1 PostgreSQL Database
 
-- **Users Table**: Stores user information.
+- **Products Table**: Stores product information.
   ```sql
-  CREATE TABLE users (
-      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL,
-      password TEXT NOT NULL,
-      email TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  CREATE TABLE products (
+      product_id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      price REAL NOT NULL,
+      stock INTEGER NOT NULL,
+      category TEXT,
+      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
+  );
+  ```
+
+- **Employees Table**: Stores employee information.
+  ```sql
+  CREATE TABLE employees (
+      employee_id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      position TEXT NOT NULL,
+      hire_date DATE NOT NULL,
+      contact_info TEXT,
+      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
   );
   ```
 
 - **Orders Table**: Stores order information.
   ```sql
   CREATE TABLE orders (
-      order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      total_price REAL NOT NULL,
+      order_id SERIAL PRIMARY KEY,
+      order_date DATE NOT NULL,
+      employee_id INTEGER REFERENCES employees(employee_id),
+      total REAL NOT NULL,
       status TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(user_id)
+      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
   );
   ```
 
-- **Inventory Table**: Stores inventory information.
+- **Order_Items Table**: Stores order items (many-to-many relationship between orders and products).
   ```sql
-  CREATE TABLE inventory (
-      product_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      product_name TEXT NOT NULL,
+  CREATE TABLE order_items (
+      order_item_id SERIAL PRIMARY KEY,
+      order_id INTEGER REFERENCES orders(order_id),
+      product_id INTEGER REFERENCES products(product_id),
       quantity INTEGER NOT NULL,
-      price REAL NOT NULL
+      price REAL NOT NULL,
+      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
+  );
+  ```
+
+- **Customers Table**: Stores customer information.
+  ```sql
+  CREATE TABLE customers (
+      customer_id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      phone_number TEXT NOT NULL,
+      email TEXT NOT NULL,
+      address TEXT NOT NULL,
+      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
+  );
+  ```
+
+- **Suppliers Table**: Stores supplier information.
+  ```sql
+  CREATE TABLE suppliers (
+      supplier_id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      contact_info TEXT,
+      product_id INTEGER REFERENCES products(product_id),
+      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
+  );
+  ```
+
+- **Inventory_Actions Table**: Tracks inventory actions (stock changes).
+  ```sql
+  CREATE TABLE inventory_actions (
+      action_id SERIAL PRIMARY KEY,
+      product_id INTEGER REFERENCES products(product_id),
+      action_type TEXT NOT NULL, -- 例如 'inbound', 'outbound'
+      quantity INTEGER NOT NULL,
+      action_date DATE NOT NULL,
+      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
   );
   ```
 

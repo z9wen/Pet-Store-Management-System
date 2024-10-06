@@ -110,40 +110,47 @@
 
 ## 4. 数据库设计
 
-### 4.1 SQLite 数据库
+### 4.1 PostgreSQL 数据库
 
 - **用户表**: 存储用户信息
   ```sql
   CREATE TABLE users (
-      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id SERIAL PRIMARY KEY,  -- 使用 SERIAL 自动生成主键
       username TEXT NOT NULL,
       password TEXT NOT NULL,
       email TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP  -- 使用 TIMESTAMPTZ 以支持时区
   );
   ```
 
 - **订单表**: 存储订单信息
   ```sql
   CREATE TABLE orders (
-      order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id SERIAL PRIMARY KEY,  -- 使用 SERIAL 自动生成主键
       user_id INTEGER NOT NULL,
       total_price REAL NOT NULL,
       status TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(user_id)
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  -- 使用 TIMESTAMPTZ 以支持时区
+      FOREIGN KEY (user_id) REFERENCES users(user_id)  -- 外键引用 users 表
   );
   ```
 
 - **库存表**: 存储库存信息
   ```sql
   CREATE TABLE inventory (
-      product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id SERIAL PRIMARY KEY,  -- 使用 SERIAL 自动生成主键
       product_name TEXT NOT NULL,
       quantity INTEGER NOT NULL,
       price REAL NOT NULL
   );
   ```
+
+### 修改说明：
+1. **`SERIAL` 主键**：在 **PostgreSQL** 中，`SERIAL` 数据类型自动递增并作为主键使用，因此替换了 **SQLite** 的 `AUTOINCREMENT`。
+
+2. **时区支持的时间戳**：将 `DATETIME` 更改为 `TIMESTAMPTZ`，以便记录的时间信息能够支持时区，这是 PostgreSQL 的最佳实践。
+
+3. **外键关系**：`orders` 表中的 `user_id` 是引用 `users` 表的外键。这样确保订单和用户之间的关联性，并维护数据库的完整性。
 
 ---
 

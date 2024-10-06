@@ -1,0 +1,5 @@
+#ifndef PGSQL_SUPERUSER_H
+#define PGSQL_SUPERUSER_H
+
+
+#endif //PGSQL_SUPERUSER_H

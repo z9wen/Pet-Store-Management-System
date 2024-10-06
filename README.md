@@ -116,85 +116,92 @@ The system uses C++ as the backend language, with Redis Streams handling asynchr
 
 - **Products Table**: Stores product information.
   ```sql
-  CREATE TABLE products (
-      product_id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      price REAL NOT NULL,
-      stock INTEGER NOT NULL,
-      category TEXT,
-      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
-  );
+    CREATE TABLE IF NOT EXISTS Products (
+        product_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each product
+        name TEXT NOT NULL,  -- Name of the product
+        price NUMERIC(10, 2) NOT NULL,  -- Price of the product with two decimal precision
+        stock INTEGER NOT NULL,  -- Current stock quantity of the product
+        category TEXT,  -- Product category or classification
+        is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete flag, marks whether the product is logically deleted
+    );
   ```
 
 - **Employees Table**: Stores employee information.
   ```sql
-  CREATE TABLE employees (
-      employee_id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      position TEXT NOT NULL,
-      hire_date DATE NOT NULL,
-      contact_info TEXT,
-      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
-  );
+    CREATE TABLE IF NOT EXISTS Employees (
+        employee_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each employee
+        name TEXT NOT NULL,  -- Name of the employee
+        position TEXT NOT NULL,  -- Job position of the employee
+        hire_date DATE NOT NULL,  -- Date when the employee was hired
+        contact_info TEXT,  -- Contact details of the employee
+        is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete flag, marks whether the employee is logically deleted
+    );
   ```
 
 - **Orders Table**: Stores order information.
   ```sql
-  CREATE TABLE orders (
-      order_id SERIAL PRIMARY KEY,
-      order_date DATE NOT NULL,
-      employee_id INTEGER REFERENCES employees(employee_id),
-      total REAL NOT NULL,
-      status TEXT NOT NULL,
-      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
-  );
+    CREATE TABLE IF NOT EXISTS Orders (
+        order_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each order
+        order_date DATE NOT NULL,  -- Date when the order was placed
+        employee_id INTEGER,  -- Reference to the employee who handled the order (foreign key to Employees table)
+        customer_id INTEGER,  -- Reference to the customer who placed the order (foreign key to Customers table)
+        total NUMERIC(10, 2) NOT NULL,  -- Total amount of the order, with two decimal precision
+        status TEXT NOT NULL,  -- Status of the order (e.g., pending, completed)
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the order is logically deleted
+        FOREIGN KEY (employee_id) REFERENCES Employees(employee_id),  -- Foreign key to Employees table
+        FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)  -- Foreign key to Customers table
+    );
   ```
 
 - **Order_Items Table**: Stores order items (many-to-many relationship between orders and products).
   ```sql
-  CREATE TABLE order_items (
-      order_item_id SERIAL PRIMARY KEY,
-      order_id INTEGER REFERENCES orders(order_id),
-      product_id INTEGER REFERENCES products(product_id),
-      quantity INTEGER NOT NULL,
-      price REAL NOT NULL,
-      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
-  );
+    CREATE TABLE IF NOT EXISTS Order_Items (
+        order_item_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each order item
+        order_id INTEGER NOT NULL,  -- Reference to the order (foreign key to Orders table)
+        product_id INTEGER NOT NULL,  -- Reference to the product in the order (foreign key to Products table)
+        quantity INTEGER NOT NULL,  -- Quantity of the product ordered
+        price NUMERIC(10, 2) NOT NULL,  -- Price of the product at the time of order, with two decimal precision
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the order item is logically deleted
+        FOREIGN KEY (order_id) REFERENCES Orders(order_id),  -- Foreign key to Orders table
+        FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
+    );
   ```
 
 - **Customers Table**: Stores customer information.
   ```sql
-  CREATE TABLE customers (
-      customer_id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      phone_number TEXT NOT NULL,
-      email TEXT NOT NULL,
-      address TEXT NOT NULL,
-      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
-  );
+    CREATE TABLE IF NOT EXISTS Customers (
+        customer_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each customer
+        name TEXT NOT NULL,  -- Name of the customer
+        phone_number TEXT NOT NULL,  -- Customer's phone number
+        email TEXT NOT NULL,  -- Customer's email address
+        address TEXT NOT NULL,  -- Customer's address
+        is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete flag, marks whether the customer is logically deleted
+    );
   ```
 
 - **Suppliers Table**: Stores supplier information.
   ```sql
-  CREATE TABLE suppliers (
-      supplier_id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      contact_info TEXT,
-      product_id INTEGER REFERENCES products(product_id),
-      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
-  );
+    CREATE TABLE IF NOT EXISTS Suppliers (
+        supplier_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each supplier
+        name TEXT NOT NULL,  -- Name of the supplier
+        contact_info TEXT,  -- Supplier's contact details
+        product_id INTEGER,  -- Reference to the product supplied by this supplier (foreign key to Products table)
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the supplier is logically deleted
+        FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
+    );
   ```
 
 - **Inventory_Actions Table**: Tracks inventory actions (stock changes).
   ```sql
-  CREATE TABLE inventory_actions (
-      action_id SERIAL PRIMARY KEY,
-      product_id INTEGER REFERENCES products(product_id),
-      action_type TEXT NOT NULL, -- 例如 'inbound', 'outbound'
-      quantity INTEGER NOT NULL,
-      action_date DATE NOT NULL,
-      is_deleted BOOLEAN DEFAULT FALSE -- 软删除标记
-  );
+    CREATE TABLE IF NOT EXISTS Inventory_Actions (
+        action_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each inventory action
+        product_id INTEGER NOT NULL,  -- Reference to the product for the inventory action (foreign key to Products table)
+        action_type TEXT NOT NULL,  -- Type of inventory action (e.g., inbound, outbound)
+        quantity INTEGER NOT NULL,  -- Quantity of the inventory action
+        action_date DATE NOT NULL,  -- Date when the inventory action took place
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the inventory action is logically deleted
+        FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
+    );
   ```
 
 ---

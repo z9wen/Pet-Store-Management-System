@@ -5,50 +5,84 @@
 
 const char* createProductsTableSQL = R"(
     CREATE TABLE IF NOT EXISTS Products (
-        product_id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        price NUMERIC(10, 2) NOT NULL,
-        stock INTEGER NOT NULL,
-        category TEXT,
-        is_deleted BOOLEAN DEFAULT FALSE
+        product_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each product
+        name TEXT NOT NULL,  -- Name of the product
+        price NUMERIC(10, 2) NOT NULL,  -- Price of the product with two decimal precision
+        stock INTEGER NOT NULL,  -- Current stock quantity of the product
+        category TEXT,  -- Product category or classification
+        is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete flag, marks whether the product is logically deleted
     );
 )";
 
 const char* createEmployeesTableSQL = R"(
     CREATE TABLE IF NOT EXISTS Employees (
-        employee_id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        position TEXT NOT NULL,
-        hire_date DATE NOT NULL,
-        contact_info TEXT,
-        is_deleted BOOLEAN DEFAULT FALSE
+        employee_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each employee
+        name TEXT NOT NULL,  -- Name of the employee
+        position TEXT NOT NULL,  -- Job position of the employee
+        hire_date DATE NOT NULL,  -- Date when the employee was hired
+        contact_info TEXT,  -- Contact details of the employee
+        is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete flag, marks whether the employee is logically deleted
     );
 )";
 
 const char* createOrdersTableSQL = R"(
     CREATE TABLE IF NOT EXISTS Orders (
-        order_id SERIAL PRIMARY KEY,
-        order_date DATE NOT NULL,
-        employee_id INTEGER,
-        customer_id INTEGER,
-        total NUMERIC(10, 2) NOT NULL,
-        status TEXT NOT NULL,
-        is_deleted BOOLEAN DEFAULT FALSE,
-        FOREIGN KEY (employee_id) REFERENCES Employees(employee_id),
-        FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+        order_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each order
+        order_date DATE NOT NULL,  -- Date when the order was placed
+        employee_id INTEGER,  -- Reference to the employee who handled the order (foreign key to Employees table)
+        customer_id INTEGER,  -- Reference to the customer who placed the order (foreign key to Customers table)
+        total NUMERIC(10, 2) NOT NULL,  -- Total amount of the order, with two decimal precision
+        status TEXT NOT NULL,  -- Status of the order (e.g., pending, completed)
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the order is logically deleted
+        FOREIGN KEY (employee_id) REFERENCES Employees(employee_id),  -- Foreign key to Employees table
+        FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)  -- Foreign key to Customers table
     );
 )";
 
 const char* createOrderItemsTableSQL = R"(
     CREATE TABLE IF NOT EXISTS Order_Items (
-        order_item_id SERIAL PRIMARY KEY,
-        order_id INTEGER NOT NULL,
-        product_id INTEGER NOT NULL,
-        quantity INTEGER NOT NULL,
-        price NUMERIC(10, 2) NOT NULL,
-        is_deleted BOOLEAN DEFAULT FALSE,
-        FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-        FOREIGN KEY (product_id) REFERENCES Products(product_id)
+        order_item_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each order item
+        order_id INTEGER NOT NULL,  -- Reference to the order (foreign key to Orders table)
+        product_id INTEGER NOT NULL,  -- Reference to the product in the order (foreign key to Products table)
+        quantity INTEGER NOT NULL,  -- Quantity of the product ordered
+        price NUMERIC(10, 2) NOT NULL,  -- Price of the product at the time of order, with two decimal precision
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the order item is logically deleted
+        FOREIGN KEY (order_id) REFERENCES Orders(order_id),  -- Foreign key to Orders table
+        FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
+    );
+)";
+
+const char* createCustomersTableSQL = R"(
+    CREATE TABLE IF NOT EXISTS Customers (
+        customer_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each customer
+        name TEXT NOT NULL,  -- Name of the customer
+        phone_number TEXT NOT NULL,  -- Customer's phone number
+        email TEXT NOT NULL,  -- Customer's email address
+        address TEXT NOT NULL,  -- Customer's address
+        is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete flag, marks whether the customer is logically deleted
+    );
+)";
+
+const char* createSuppliersTableSQL = R"(
+    CREATE TABLE IF NOT EXISTS Suppliers (
+        supplier_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each supplier
+        name TEXT NOT NULL,  -- Name of the supplier
+        contact_info TEXT,  -- Supplier's contact details
+        product_id INTEGER,  -- Reference to the product supplied by this supplier (foreign key to Products table)
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the supplier is logically deleted
+        FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
+    );
+)";
+
+const char* createInventoryActionsTableSQL = R"(
+    CREATE TABLE IF NOT EXISTS Inventory_Actions (
+        action_id SERIAL PRIMARY KEY,  -- Auto-incrementing unique identifier for each inventory action
+        product_id INTEGER NOT NULL,  -- Reference to the product for the inventory action (foreign key to Products table)
+        action_type TEXT NOT NULL,  -- Type of inventory action (e.g., inbound, outbound)
+        quantity INTEGER NOT NULL,  -- Quantity of the inventory action
+        action_date DATE NOT NULL,  -- Date when the inventory action took place
+        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the inventory action is logically deleted
+        FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
     );
 )";
 
@@ -66,7 +100,10 @@ bool initializeDatabase(const char* conninfo) {
         createEmployeesTableSQL,
         createOrdersTableSQL,
         createProductsTableSQL,
-        createOrderItemsTableSQL
+        createOrderItemsTableSQL,
+        createCustomersTableSQL,
+        createSuppliersTableSQL,
+        createInventoryActionsTableSQL
     };
 
     // Execute SQL statements

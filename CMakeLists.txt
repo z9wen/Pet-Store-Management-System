@@ -50,7 +50,9 @@ enable_testing()
 # 主程序
 add_executable(main_exe src/main.cpp
         src/test.h
-        src/test.cpp)
+        src/test.cpp
+        src/database_ini.cpp
+        src/database_ini.h)
 
 # 测试程序
 add_executable(main_tests tests/main.test.cpp ../lib/catch_amalgamated.cpp

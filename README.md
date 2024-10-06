@@ -4,7 +4,7 @@
 
 **Project Name**: Pet Store Management System  
 **Programming Language**: C++  
-**Database**: PostgreSQL
+**Database**: PostgreSQL  
 **Cache & Message Queue**: Redis (including Redis Streams)  
 **Frontend**: HTML, CSS, JavaScript  
 **Goal**: Develop a system for managing the daily operations of a pet store, including user management, order management, inventory management, and notification handling.

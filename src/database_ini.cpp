@@ -206,8 +206,8 @@ bool createUserAndDatabase(const std::string& inputDbName,
 	return true;
 }
 
-void getUserInputAndCreateDatabase(const std::string& superUserName = "postgres",
-                                   const std::string& superUserPassword = "") {
+void getUserInputAndCreateDatabase(const std::string& superUserName,
+                                   const std::string& superUserPassword) {
 	std::string dbName, userName, password;
 
 	// users input

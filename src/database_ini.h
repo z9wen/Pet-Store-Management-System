@@ -10,7 +10,8 @@ bool checkAndInitializeDatabase(const char* dbName);
 bool createUserAndDatabase(const std::string& inputDbName,
                            const std::string& inputUserName,
                            const std::string& inputPassword);
-void getUserInputAndCreateDatabase();
+void getUserInputAndCreateDatabase(const std::string& superUserName = "postgres",
+                                   const std::string& superUserPassword = "");
 bool checkDatabaseExists(const std::string& dbName);
 
 #endif // DATABASE_INI_H

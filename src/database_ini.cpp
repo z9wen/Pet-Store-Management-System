@@ -145,7 +145,9 @@ bool checkAndInitializeDatabase(const char* conninfo) {
 
 bool createUserAndDatabase(const std::string& inputDbName,
                            const std::string& inputUserName,
-                           const std::string& inputPassword) {
+                           const std::string& inputPassword,
+                           const std::string& superUserName = "postgres",
+                           const std::string& superUserPassword = "") {
 	// default
 	std::string dbName = inputDbName.empty() ? "pet_store_db" : inputDbName;
 	std::string userName = inputUserName.empty() ? "pet_store_user" : inputUserName;
@@ -153,13 +155,14 @@ bool createUserAndDatabase(const std::string& inputDbName,
 
 	// create user
 	std::string createUserSQL = "CREATE USER " + userName + " WITH ENCRYPTED PASSWORD '" + password + "';";
-	std::string createDatabaseSQL = "CREATE DATABSE " + dbName + ";";
+	std::string createDatabaseSQL = "CREATE DATABASE " + dbName + ";";
 	std::string grantPrivilegesSQL = "GRANT ALL PRIVILEGES ON DATABASE " + dbName + " TO " + userName + ";";
 
-	// superuser create pgsql
-	// const char* conninfo = "dbname=postgres user=postgres password=superuser_password host=localhost port=5432";
-	const char* conninfo = "dbname=postgres user=postgres host=localhost port=5432";
-	PGconn* conn = PQconnectdb(conninfo);
+	// Create connection string for superuser
+	std::string conninfo = "dbname=postgres user=" + superUserName
+	                       + (superUserPassword.empty() ? "" : " password=" + superUserPassword)
+	                       + " host=localhost port=5432";
+	PGconn* conn = PQconnectdb(conninfo.c_str());
 
 	if (PQstatus(conn) != CONNECTION_OK) {
 		std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
@@ -203,7 +206,8 @@ bool createUserAndDatabase(const std::string& inputDbName,
 	return true;
 }
 
-void getUserInputAndCreateDatabase() {
+void getUserInputAndCreateDatabase(const std::string& superUserName = "postgres",
+                                   const std::string& superUserPassword = "") {
 	std::string dbName, userName, password;
 
 	// users input
@@ -217,7 +221,7 @@ void getUserInputAndCreateDatabase() {
 	std::getline(std::cin, password);
 
 	// create user and database
-	if (!createUserAndDatabase(dbName, userName, password)) {
+	if (!createUserAndDatabase(dbName, userName, password, superUserName, superUserPassword)) {
 		std::cerr << "Failed to create user and database." << std::endl;
 		return;
 	}
@@ -233,10 +237,12 @@ void getUserInputAndCreateDatabase() {
 	}
 }
 
-bool checkDatabaseExists(const std::string& dbName) {
-	// std::string conninfo = "dbname=" + dbName +
-	//     " user=postgres password=superuser_password host=localhost port=5432";
-	std::string conninfo = "dbname=" + dbName + " user=postgres host=localhost port=5432";
+bool checkDatabaseExists(const std::string& dbName,
+                         const std::string& superUserName = "postgres",
+                         const std::string& superUserPassword = "") {
+	std::string conninfo = "dbname=" + dbName + " user=" + superUserName
+	                       + (superUserPassword.empty() ? "" : " password=" + superUserPassword)
+	                       + " host=localhost port=5432";
 	PGconn* conn = PQconnectdb(conninfo.c_str());
 
 	// check connection

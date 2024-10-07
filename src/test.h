@@ -7,5 +7,4 @@
 
 auto plus(int a, int b) -> int;
 
-
-#endif //TEST_H
+#endif // TEST_H

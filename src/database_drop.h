@@ -9,4 +9,4 @@ bool dropOrdersTable(PGconn* conn);
 bool dropOrderItemsTable(PGconn* conn);
 bool dropAllTables(const char* conninfo);
 
-#endif //DATABASE_DROP_H
+#endif // DATABASE_DROP_H

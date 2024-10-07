@@ -1,7 +1,7 @@
 #include "database_ini.h"
 
-#include <iostream>
 #include "libpq-fe.h"
+#include <iostream>
 
 const char* createProductsTableSQL = R"(
     CREATE TABLE IF NOT EXISTS Products (
@@ -86,171 +86,166 @@ const char* createInventoryActionsTableSQL = R"(
     );
 )";
 
-
 // Initialize the database connection and create tables
 bool initializeDatabase(const char* conninfo) {
-    PGconn* conn = PQconnectdb(conninfo);
-    if (PQstatus(conn) != CONNECTION_OK) {
-        std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
-        PQfinish(conn);
-        return false;
-    }
+	PGconn* conn = PQconnectdb(conninfo);
+	if (PQstatus(conn) != CONNECTION_OK) {
+		std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
+		PQfinish(conn);
+		return false;
+	}
 
-    const char* createTableSQL[] = {
-        createEmployeesTableSQL,
-        createOrdersTableSQL,
-        createProductsTableSQL,
-        createOrderItemsTableSQL,
-        createCustomersTableSQL,
-        createSuppliersTableSQL,
-        createInventoryActionsTableSQL
-    };
+	const char* createTableSQL[] = {createEmployeesTableSQL,
+	                                createOrdersTableSQL,
+	                                createProductsTableSQL,
+	                                createOrderItemsTableSQL,
+	                                createCustomersTableSQL,
+	                                createSuppliersTableSQL,
+	                                createInventoryActionsTableSQL};
 
-    // Execute SQL statements
-    for (const char* sql : createTableSQL) {
-        PGresult* res = PQexec(conn, sql);
-        if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-            std::cerr << "Failed to create table: " << PQerrorMessage(conn) << std::endl;
-            PQclear(res);
-            PQfinish(conn);
-            return false;
-        }
-        PQclear(res);
-    }
+	// Execute SQL statements
+	for (const char* sql : createTableSQL) {
+		PGresult* res = PQexec(conn, sql);
+		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+			std::cerr << "Failed to create table: " << PQerrorMessage(conn) << std::endl;
+			PQclear(res);
+			PQfinish(conn);
+			return false;
+		}
+		PQclear(res);
+	}
 
-    PQfinish(conn);
-    std::cout << "Database initialized successfully." << std::endl;
-    return true;
+	PQfinish(conn);
+	std::cout << "Database initialized successfully." << std::endl;
+	return true;
 }
 
 // Check if database connection is valid
 bool checkDatabaseExists(const char* conninfo) {
-    PGconn* conn = PQconnectdb(conninfo);
-    if (PQstatus(conn) != CONNECTION_OK) {
-        std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
-        PQfinish(conn);
-        return false;
-    }
-    PQfinish(conn);
-    return true;
+	PGconn* conn = PQconnectdb(conninfo);
+	if (PQstatus(conn) != CONNECTION_OK) {
+		std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
+		PQfinish(conn);
+		return false;
+	}
+	PQfinish(conn);
+	return true;
 }
 
 bool checkAndInitializeDatabase(const char* conninfo) {
-    if (!checkDatabaseExists(conninfo)) {
-        std::cout << "Database does not exist, initializing..." << std::endl;
-        return initializeDatabase(conninfo);
-    } else {
-        std::cout << "Database already exists." << std::endl;
-        return true;
-    }
+	if (!checkDatabaseExists(conninfo)) {
+		std::cout << "Database does not exist, initializing..." << std::endl;
+		return initializeDatabase(conninfo);
+	}
+	else {
+		std::cout << "Database already exists." << std::endl;
+		return true;
+	}
 }
 
-bool createUserAndDatabase(const std::string& inputDbName, const std::string& inputUserName,
-    const std::string& inputPassword) {
-    // default
-    std::string dbName = inputDbName.empty() ? "pet_store_db" : inputDbName;
-    std::string userName = inputUserName.empty() ? "pet_store_user" : inputUserName;
-    std::string password = inputPassword.empty() ? "12345678" : inputPassword;
+bool createUserAndDatabase(const std::string& inputDbName,
+                           const std::string& inputUserName,
+                           const std::string& inputPassword) {
+	// default
+	std::string dbName = inputDbName.empty() ? "pet_store_db" : inputDbName;
+	std::string userName = inputUserName.empty() ? "pet_store_user" : inputUserName;
+	std::string password = inputPassword.empty() ? "12345678" : inputPassword;
 
-    // create user
-    std::string createUserSQL = "CREATE USER " + userName + " WITH ENCRYPTED PASSWORD '" + password + "';";
-    std::string createDatabaseSQL = "CREATE DATABSE " + dbName + ";";
-    std::string grantPrivilegesSQL = "GRANT ALL PRIVILEGES ON DATABASE " + dbName + " TO " + userName + ";";
+	// create user
+	std::string createUserSQL = "CREATE USER " + userName + " WITH ENCRYPTED PASSWORD '" + password + "';";
+	std::string createDatabaseSQL = "CREATE DATABSE " + dbName + ";";
+	std::string grantPrivilegesSQL = "GRANT ALL PRIVILEGES ON DATABASE " + dbName + " TO " + userName + ";";
 
-    // superuser create pgsql
-    // const char* conninfo = "dbname=postgres user=postgres password=superuser_password host=localhost port=5432";
-    const char* conninfo = "dbname=postgres user=postgres host=localhost port=5432";
-    PGconn* conn = PQconnectdb(conninfo);
+	// superuser create pgsql
+	// const char* conninfo = "dbname=postgres user=postgres password=superuser_password host=localhost port=5432";
+	const char* conninfo = "dbname=postgres user=postgres host=localhost port=5432";
+	PGconn* conn = PQconnectdb(conninfo);
 
-    if (PQstatus(conn) != CONNECTION_OK) {
-        std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
-        PQfinish(conn);
-        return false;
-    }
+	if (PQstatus(conn) != CONNECTION_OK) {
+		std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
+		PQfinish(conn);
+		return false;
+	}
 
-    // Execute create user SQL
-    PGresult* res = PQexec(conn, createUserSQL.c_str());
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        std::cerr << "Failed to create user: " << PQerrorMessage(conn) << std::endl;
-        PQclear(res);
-        PQfinish(conn);
-        return false;
-    }
-    PQclear(res);
+	// Execute create user SQL
+	PGresult* res = PQexec(conn, createUserSQL.c_str());
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+		std::cerr << "Failed to create user: " << PQerrorMessage(conn) << std::endl;
+		PQclear(res);
+		PQfinish(conn);
+		return false;
+	}
+	PQclear(res);
 
-    // Execute SQL to create database
-    res = PQexec(conn, createDatabaseSQL.c_str());
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        std::cerr << "Failed to create database: " << PQerrorMessage(conn) << std::endl;
-        PQclear(res);
-        PQfinish(conn);
-        return false;
-    }
-    PQclear(res);
+	// Execute SQL to create database
+	res = PQexec(conn, createDatabaseSQL.c_str());
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+		std::cerr << "Failed to create database: " << PQerrorMessage(conn) << std::endl;
+		PQclear(res);
+		PQfinish(conn);
+		return false;
+	}
+	PQclear(res);
 
-    // Execute the SQL statement to grant permissions
-    res = PQexec(conn, grantPrivilegesSQL.c_str());
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        std::cerr << "Failed to grant privileges: " << PQerrorMessage(conn) << std::endl;
-        PQclear(res);
-        PQfinish(conn);
-        return false;
-    }
-    PQclear(res);
+	// Execute the SQL statement to grant permissions
+	res = PQexec(conn, grantPrivilegesSQL.c_str());
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+		std::cerr << "Failed to grant privileges: " << PQerrorMessage(conn) << std::endl;
+		PQclear(res);
+		PQfinish(conn);
+		return false;
+	}
+	PQclear(res);
 
-    // close connection
-    PQfinish(conn);
-    std::cout << "User and database created successfully." << std::endl;
-    return true;
-
+	// close connection
+	PQfinish(conn);
+	std::cout << "User and database created successfully." << std::endl;
+	return true;
 }
 
 void getUserInputAndCreateDatabase() {
-    std::string dbName, userName, password;
+	std::string dbName, userName, password;
 
-    // users input
-    std::cout << "Enter database name (leave blank for default 'pet_store_db'): ";
-    std::getline(std::cin, dbName);
+	// users input
+	std::cout << "Enter database name (leave blank for default 'pet_store_db'): ";
+	std::getline(std::cin, dbName);
 
-    std::cout << "Enter user name (leave blank for default 'pet_store_user'): ";
-    std::getline(std::cin, userName);
+	std::cout << "Enter user name (leave blank for default 'pet_store_user'): ";
+	std::getline(std::cin, userName);
 
-    std::cout << "Enter password (leave blank for default '12345678'): ";
-    std::getline(std::cin, password);
+	std::cout << "Enter password (leave blank for default '12345678'): ";
+	std::getline(std::cin, password);
 
-    // create user and database
-    if (!createUserAndDatabase(dbName, userName, password)) {
-        std::cerr << "Failed to create user and database." << std::endl;
-        return;
-    }
+	// create user and database
+	if (!createUserAndDatabase(dbName, userName, password)) {
+		std::cerr << "Failed to create user and database." << std::endl;
+		return;
+	}
 
-    // Prepare database connection information for initializing the table
-    std::string conninfo = "dbname=" + (dbName.empty() ? "pet_store_db" : dbName) +
-                           " user=" + (userName.empty() ? "pet_store_user" : userName) +
-                           " password=" + (password.empty() ? "12345678" : password) +
-                           " host=localhost port=5432";
+	// Prepare database connection information for initializing the table
+	std::string conninfo = "dbname=" + (dbName.empty() ? "pet_store_db" : dbName)
+	                       + " user=" + (userName.empty() ? "pet_store_user" : userName)
+	                       + " password=" + (password.empty() ? "12345678" : password) + " host=localhost port=5432";
 
-    // initialize table
-    if (!initializeDatabase(conninfo.c_str())) {
-        std::cerr << "Failed to initialize tables." << std::endl;
-    }
+	// initialize table
+	if (!initializeDatabase(conninfo.c_str())) {
+		std::cerr << "Failed to initialize tables." << std::endl;
+	}
 }
 
 bool checkDatabaseExists(const std::string& dbName) {
-    // std::string conninfo = "dbname=" + dbName +
-    //     " user=postgres password=superuser_password host=localhost port=5432";
-    std::string conninfo = "dbname=" + dbName + " user=postgres host=localhost port=5432";
-    PGconn* conn = PQconnectdb(conninfo.c_str());
+	// std::string conninfo = "dbname=" + dbName +
+	//     " user=postgres password=superuser_password host=localhost port=5432";
+	std::string conninfo = "dbname=" + dbName + " user=postgres host=localhost port=5432";
+	PGconn* conn = PQconnectdb(conninfo.c_str());
 
-    // check connection
-    if (PQstatus(conn) != CONNECTION_OK) {
-        std::cerr << "Database does not exist: " << PQerrorMessage(conn) << std::endl;
-        PQfinish(conn);
-        return false;
-    }
+	// check connection
+	if (PQstatus(conn) != CONNECTION_OK) {
+		std::cerr << "Database does not exist: " << PQerrorMessage(conn) << std::endl;
+		PQfinish(conn);
+		return false;
+	}
 
-    PQfinish(conn);
-    return true;
-
+	PQfinish(conn);
+	return true;
 }
-

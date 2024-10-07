@@ -41,3 +41,32 @@ bool createSuperUser(PGconn* conn, const std::string& superUserName, const std::
     PQclear(res);
     return true;
 }
+
+bool manageSuperUser(const std::string& superUserName, const std::string& password) {
+    const char* conninfo = "dbname=postgres user=postgres host=localhost port=5432";
+
+    PGconn* conn = PQconnectdb(conninfo);
+    if (PQstatus(conn) != CONNECTION_OK) {
+        std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
+        PQfinish(conn);
+        return false;
+    }
+    // // Check if the  superuser exists
+    if (checkSuperUserExits(conn, superUserName)) {
+        std::cout << "Superuser " << superUserName << " already exists." << std::endl;
+    }else {
+        // if it does not exist, create a new superuser
+        std::cout << "Creating new superuser: " << superUserName << std::endl;
+        if (!createSuperUser(conn, superUserName, password)) {
+            std::cerr << "Failed to create superuser." << std::endl;
+            PQfinish(conn);
+            return false;
+        }
+        std::cout << "Superuser created successfully." << std::endl;
+    }
+
+    // close connection
+    PQfinish(conn);
+    return true;
+
+}

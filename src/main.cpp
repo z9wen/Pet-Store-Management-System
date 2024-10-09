@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "pgsql_management.h"
 #include "database_drop.h"
 #include "database_ini.h"
 #include "test.h"
@@ -33,15 +34,7 @@ void printAscii() {
 auto main() -> int {
 	printAscii();
 
-	std::string dbName = "pet_store_db";
-
-	if (!checkDatabaseExists(dbName)) {
-		std::cout << "Database does not exist. Initializing..." << std::endl;
-		getUserInputAndCreateDatabase();
-	}
-	else {
-		std::cout << "Database already exists." << std::endl;
-	}
+	sqlManagementMenu();
 
 	return 0;
 }

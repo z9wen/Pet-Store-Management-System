@@ -56,7 +56,9 @@ add_executable(main_exe src/main.cpp
         src/database_drop.cpp
         src/database_drop.h
         src/pgsql_superuser.cpp
-        src/pgsql_superuser.h)
+        src/pgsql_superuser.h
+        src/pgsql_management.h
+        src/pgsql_management.cpp)
 
 # 测试程序
 add_executable(main_tests tests/main.test.cpp ../lib/catch_amalgamated.cpp

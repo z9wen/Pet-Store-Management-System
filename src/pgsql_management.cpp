@@ -1,6 +1,7 @@
 #include "pgsql_superuser.h"
 #include "libpq-fe.h"
 #include <iostream>
+#include <limits>
 
 void sqlManagementMenuShow() {
     std::cout << "==== PostgreSQL Superuser Management ====" << std::endl;

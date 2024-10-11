@@ -2,9 +2,9 @@
 #include <string>
 #include <vector>
 
-#include "pgsql_management.h"
 #include "database_drop.h"
 #include "database_ini.h"
+#include "pgsql_management.h"
 #include "pgsql_superuser.h"
 #include "test.h"
 

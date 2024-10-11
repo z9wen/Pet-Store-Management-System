@@ -1,7 +1,4 @@
 #ifndef PGSQL_MANAGEMENT_H
 #define PGSQL_MANAGEMENT_H
 
-
-
-
-#endif //PGSQL_MANAGEMENT_H
+#endif // PGSQL_MANAGEMENT_H

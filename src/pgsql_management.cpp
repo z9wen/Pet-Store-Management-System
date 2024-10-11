@@ -7,7 +7,8 @@ void sqlManagementMenuShow() {
     std::cout << "==== PostgreSQL Superuser Management ====" << std::endl;
     std::cout << "1. Check if Superuser Exists" << std::endl;
     std::cout << "2. Create Superuser" << std::endl;
-    std::cout << "3. Exit" << std::endl;
+    std::cout << "3. List All Superusers" << std::endl;
+    std::cout << "4. Exit" << std::endl;
     std::cout << "=========================================" << std::endl;
     std::cout << "Enter your choice: ";
 }
@@ -16,7 +17,7 @@ std::string getSuperUserConnectionInfo(std::string& superUserName, std::string& 
     std::cout << "Enter superuser name (default is 'postgres'): ";
     std::getline(std::cin, superUserName);
     if (superUserName.empty()) {
-        superUserName = "postgres";  // 默认使用 "postgres" 超级用户
+        superUserName = "postgres";  // default pgsql user postgres
     }
 
     std::cout << "Enter superuser password (leave blank for no password): ";
@@ -40,16 +41,16 @@ void sqlManagementMenu() {
     std::string connectionSuperUser;
     std::string connectionPassword;
 
-    // 获取超级用户的连接信息
+    // Get the superuser connection information
     conninfo = getSuperUserConnectionInfo(connectionSuperUser, connectionPassword);
 
     while (true) {
-        sqlManagementMenuShow();  // 显示菜单选项
+        sqlManagementMenuShow();  // show menu
         std::cin >> choice;
 
-        if (std::cin.fail()) {  // 检查输入是否有效
-            std::cin.clear();   // 清除错误标志
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // 忽略无效输入
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::cerr << "Invalid input. Please enter a number." << std::endl;
             continue;
         }
@@ -63,7 +64,7 @@ void sqlManagementMenu() {
                 if (PQstatus(conn) != CONNECTION_OK) {
                     std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
                     PQfinish(conn);
-                    continue;  // 返回到菜单
+                    continue;  // back to menu
                 }
 
                 if (isUserSuperUser(conn, superUserName)) {
@@ -86,7 +87,7 @@ void sqlManagementMenu() {
                 if (PQstatus(conn) != CONNECTION_OK) {
                     std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
                     PQfinish(conn);
-                    continue;  // 返回到菜单
+                    continue;  // back to menu
                 }
 
                 if (createSuperUser(conn, superUserName, password)) {
@@ -99,8 +100,13 @@ void sqlManagementMenu() {
                 break;
             }
             case 3: {
+                PGconn* conn = PQconnectdb(conninfo.c_str());
+                checkAnySuperUserExists(conn);
+                break;
+            }
+            case 4: {
                 std::cout << "Exiting program." << std::endl;
-                return;  // 退出函数和循环
+                return;  // exit
             }
             default: {
                 std::cerr << "Invalid choice. Please enter a valid option." << std::endl;

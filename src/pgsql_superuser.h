@@ -5,7 +5,8 @@
 #include <iostream>
 #include <string>
 
-bool checkAnySuperUserExists(PGconn* conn);
+// bool checkAnySuperUserExists(PGconn* conn); *废弃*
+void getSuperUserList(PGconn* conn);
 bool isUserSuperUser(PGconn* conn, const std::string& superUserName);
 bool createSuperUser(PGconn* conn, const std::string& superUserName, const std::string& password);
 bool manageSuperUser(const std::string& superUserName, const std::string& password);

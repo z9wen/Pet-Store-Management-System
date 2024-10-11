@@ -4,21 +4,46 @@
 #include <iostream>
 #include <string>
 
-// 检查系统中是否存在超级用户
-bool checkAnySuperUserExists(PGconn* conn) {
+// *废弃* 检查系统中是否存在超级用户
+// bool checkAnySuperUserExists(PGconn* conn) {
+//     const char* query = "SELECT rolname FROM pg_roles WHERE rolsuper = true;";
+//     PGresult* res = PQexec(conn, query);
+//
+//     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+//         std::cerr << "Failed to check for superusers: " << PQerrorMessage(conn) << std::endl;
+//         PQclear(res);
+//         return false;
+//     }
+//
+//     int rows = PQntuples(res);
+//     PQclear(res);
+//
+//     return rows > 0;  // 返回 true 表示至少存在一个超级用户
+// }
+
+// list superuser
+void getSuperUserList(PGconn* conn) {
     const char* query = "SELECT rolname FROM pg_roles WHERE rolsuper = true;";
     PGresult* res = PQexec(conn, query);
 
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::cerr << "Failed to check for superusers: " << PQerrorMessage(conn) << std::endl;
+        std::cerr << "Failed to retrieve superusers: " << PQerrorMessage(conn) << std::endl;
         PQclear(res);
-        return false;
+        return;
     }
 
     int rows = PQntuples(res);
-    PQclear(res);
 
-    return rows > 0;  // 返回 true 表示至少存在一个超级用户
+    if (rows == 0) {
+        std::cout << "No superusers found." << std::endl;
+    } else {
+        std::cout << "Superusers list:" << std::endl;
+        for (int i = 0; i < rows; i++) {
+            std::cout << "- " << PQgetvalue(res, i, 0) << std::endl;  // 输出每个超级用户的名字
+        }
+    }
+
+    PQclear(res);
 }
 
 // 检查指定用户是否为超级用户

@@ -101,7 +101,8 @@ void sqlManagementMenu() {
             }
             case 3: {
                 PGconn* conn = PQconnectdb(conninfo.c_str());
-                checkAnySuperUserExists(conn);
+                // checkAnySuperUserExists(conn);
+                getSuperUserList(conn);
                 break;
             }
             case 4: {

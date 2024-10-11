@@ -15,6 +15,23 @@ export CPPFLAGS="-I/opt/homebrew/opt/libpq/include"
 source ~/.zshrc
 然后：
 brew link --overwrite --force libpq
+
 ==================================================
 Debian/Ubuntu
+
+sudo apt install postgresql postgresql-contrib
 sudo apt-get install libpq-dev
+
+查看是否pgsql是否有运行
+sudo service postgresql status
+如果没有
+（sudo service postgresql start）
+
+切换到postgres用户：
+sudo -u postgres psql
+为postgres用户设置一个新的密码：
+ALTER USER postgres PASSWORD 'your_new_password';
+
+
+
+

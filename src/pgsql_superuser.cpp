@@ -3,6 +3,7 @@
 #include "libpq-fe.h"
 #include <iostream>
 #include <string>
+#include <numeric>
 
 namespace pgsqlSuperUser {
     // Constructor: Initializes the connection string

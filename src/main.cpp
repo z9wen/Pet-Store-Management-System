@@ -5,6 +5,7 @@
 #include "pgsql_management.h"
 #include "database_drop.h"
 #include "database_ini.h"
+#include "pgsql_superuser.h"
 #include "test.h"
 
 void printAscii() {
@@ -34,7 +35,7 @@ void printAscii() {
 auto main() -> int {
 	printAscii();
 
-	sqlManagementMenu();
+	pgsqlSuperUser::sqlSuperUsersManagementMenu();
 
 	return 0;
 }

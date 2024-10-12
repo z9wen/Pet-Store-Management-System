@@ -3,8 +3,8 @@
 
 #include "libpq-fe.h"
 #include <iostream>
-#include <string>
 #include <numeric>
+#include <string>
 
 namespace pgsqlInitialization {
 

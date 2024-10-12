@@ -197,4 +197,94 @@ namespace pgsqlInitialization {
 		return true;
 	}
 
+	void pgsqlInitializationMenuShow() {
+		std::cout << "\n==== PostgreSQL Database Management ====" << std::endl;
+		std::cout << "1. Check if Database Exists" << std::endl;
+		std::cout << "2. Create User and Database" << std::endl;
+		std::cout << "3. Initialize Tables" << std::endl;
+		std::cout << "4. Exit" << std::endl;
+		std::cout << "========================================" << std::endl;
+		std::cout << "Enter your choice: ";
+	}
+
+	void pgsqlInitializationManagementMenu() {
+		int choice;
+		std::string dbName, userName, password;
+		std::string superUserName, superUserPassword;
+
+		// Get superuser connection information
+		std::cout << "Enter superuser name (default is 'postgres'): ";
+		std::getline(std::cin, superUserName);
+		if (superUserName.empty()) {
+			superUserName = "postgres";
+		}
+
+		std::cout << "Enter superuser password (leave blank for no password): ";
+		std::getline(std::cin, superUserPassword);
+
+		// Instantiate the DatabaseInitializer class
+		pgsqlInitialization::DatabaseInitializer dbInitializer(superUserName, superUserPassword);
+
+		while (true) {
+			//show menu
+			pgsqlInitializationMenuShow();
+			std::cin >> choice;
+
+			if (std::cin.fail()) {
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				std::cerr << "Invalid input. Please enter a number." << std::endl;
+				continue;
+			}
+
+			switch (choice) {
+				case 1: { //check database exists
+					std::cout << "Enter database name to check: ";
+					std::cin >> dbName;
+
+					if(dbInitializer.checkDatabaseExists(dbName)) {
+						std::cout << "Database " << dbName << " exists." << std::endl;
+					}else {
+						std::cout << "Database " << dbName << "does not exist." << std::endl;
+					}
+					break;
+				}
+				case 2: { // create user and database
+					std::cout << "Enter new database name: ";
+					std::cin >> dbName;
+
+					std::cout << "Enter new user name: ";
+					std::cin >> userName;
+
+					std::cout << "Enter password for new user (leave blank for default '1234567890'): ";
+					std::cin >> password;
+					if (password.empty()) {
+						password = "1234567890";
+					}
+
+					if (dbInitializer.createUserAndDatabase(dbName, userName, password)) {
+						std::cout << "User and database created successfully." << std::endl;
+					} else {
+                    std::cout << "Failed to create user and database." << std::endl;
+					}
+					break;
+				}
+				case 3: { // Initialize the table
+					if (dbInitializer.initializeTables()) {
+						std::cout << "Tables initialized successfully." << std::endl;
+					} else {
+						std::cout << "Failed to initialize tables." << std::endl;
+					}
+					break;
+				}
+				case 4: { // exit
+					std::cout << "Exiting program..." << std::endl;
+					return;
+				}
+				default:
+					std::cerr << "Invalid choice. Please enter a valid option." << std::endl;
+				break;
+			}
+		}
+	}
 } // namespace pgsqlInitialization

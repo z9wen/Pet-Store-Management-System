@@ -4,6 +4,7 @@
 #include "libpq-fe.h"
 #include <iostream>
 #include <string>
+#include <numeric>
 
 namespace pgsqlInitialization {
 
@@ -28,6 +29,8 @@ namespace pgsqlInitialization {
 		PGconn* conn_; // PostgreSQL connection object
 		std::string superUserConnInfo_; // Connection string for superuser
 	};
+
+	void pgsqlInitializationManagementMenu();
 
 } // namespace pgsqlInitialization
 

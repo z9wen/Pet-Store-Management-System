@@ -34,29 +34,39 @@ void printAscii() {
 auto main() -> int {
 	printAscii();
 
+	std::string choice_str;
 	int choice;
+
 	while (true) {
 		std::cout << "\n=== Main Menu ===" << std::endl;
 		std::cout << "1. Super User Management" << std::endl;
 		std::cout << "2. PostgreSQL Initialization" << std::endl;
 		std::cout << "3. Exit" << std::endl;
 		std::cout << "Enter your choice: ";
-		std::cin >> choice;
+		std::getline(std::cin, choice_str);
+
+		// string to int
+		try {
+			choice = std::stoi(choice_str);
+		} catch (const std::invalid_argument& e) {
+			std::cout << "Invalid input. Please enter a valid number." << std::endl;
+			continue;
+		}
 
 		switch (choice) {
 			case 1: {
-				// 调用超级用户管理菜单
+				// Invoking the Superuser Menu
 				pgsqlSuperUser::sqlSuperUsersManagementMenu();
 				break;
 			}
 			case 2: {
-				// 调用PostgreSQL初始化菜单
+				// Invoking the pgsqlInitialization Menu
 				pgsqlInitialization::pgsqlInitializationManagementMenu();
 				break;
 			}
 			case 3: {
 				std::cout << "Exiting..." << std::endl;
-				return 0;  // 退出程序
+				return 0;
 			}
 			default: {
 				std::cout << "Invalid choice. Please try again." << std::endl;

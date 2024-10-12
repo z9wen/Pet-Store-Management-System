@@ -34,7 +34,7 @@ void printAscii() {
 auto main() -> int {
 	printAscii();
 
-	pgsqlSuperUser::sqlSuperUsersManagementMenu();
+	pgsqlInitialization::pgsqlInitializationManagementMenu();
 
 	return 0;
 }

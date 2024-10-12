@@ -180,6 +180,17 @@ namespace pgsqlInitialization {
 			return false;
 		}
 
+		// Grant all privileges on the public schema to the user
+		std::string grantPublicSchemaPrivilegesSQL = "GRANT ALL PRIVILEGES ON SCHEMA public TO " + userName + ";";
+		PGresult* res = PQexec(conn_, grantPublicSchemaPrivilegesSQL.c_str());
+		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+			std::cerr << "Failed to grant schema privileges: " << PQerrorMessage(conn_) << std::endl;
+			PQclear(res);
+			PQfinish(conn_);
+			return false;
+		}
+		PQclear(res);
+
 		const char* createTableSQL[] = {createCustomersTableSQL,
 		                                createProductsTableSQL,
 		                                createEmployeesTableSQL,

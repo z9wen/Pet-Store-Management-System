@@ -165,19 +165,26 @@ namespace pgsqlInitialization {
 	}
 
 	// Method to initialize tables in the database
-	bool DatabaseInitializer::initializeTables() {
-		conn_ = PQconnectdb(superUserConnInfo_.c_str());
+	bool DatabaseInitializer::initializeTables(const std::string& dbName,
+	                                           const std::string& userName,
+	                                           const std::string& password) {
+		std::string conninfo = "dbname=" + dbName + " user=" + userName + " host=localhost port=5432";
+		if (!password.empty()) {
+			conninfo += " password=" + password;
+		}
+
+		conn_ = PQconnectdb(conninfo.c_str());
 		if (PQstatus(conn_) != CONNECTION_OK) {
 			std::cerr << "Connection to database failed: " << PQerrorMessage(conn_) << std::endl;
 			PQfinish(conn_);
 			return false;
 		}
 
-		const char* createTableSQL[] = {createEmployeesTableSQL,
-		                                createOrdersTableSQL,
+		const char* createTableSQL[] = {createCustomersTableSQL,
 		                                createProductsTableSQL,
+		                                createEmployeesTableSQL,
+		                                createOrdersTableSQL,
 		                                createOrderItemsTableSQL,
-		                                createCustomersTableSQL,
 		                                createSuppliersTableSQL,
 		                                createInventoryActionsTableSQL};
 
@@ -193,7 +200,7 @@ namespace pgsqlInitialization {
 		}
 
 		PQfinish(conn_);
-		std::cout << "Database initialized successfully." << std::endl;
+		std::cout << "Tables initialized successfully." << std::endl;
 		return true;
 	}
 
@@ -271,8 +278,17 @@ namespace pgsqlInitialization {
 				}
 				break;
 			}
-			case 3: { // Initialize the table
-				if (dbInitializer.initializeTables()) {
+			case 3: { // Initialize the tables
+				std::cout << "Enter database name to initialize: ";
+				std::cin >> dbName;
+
+				std::cout << "Enter user name to initialize tables: ";
+				std::cin >> userName;
+
+				std::cout << "Enter password for user (leave blank if none): ";
+				std::cin >> password;
+
+				if (dbInitializer.initializeTables(dbName, userName, password)) {
 					std::cout << "Tables initialized successfully." << std::endl;
 				}
 				else {

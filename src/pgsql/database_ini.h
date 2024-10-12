@@ -17,7 +17,7 @@ namespace pgsqlInitialization {
 		~DatabaseInitializer();
 
 		// Method to initialize tables in the database
-		bool initializeTables();
+		bool initializeTables(const std::string& dbName, const std::string& userName, const std::string& password);
 
 		// Method to create a new user and database
 		bool createUserAndDatabase(const std::string& dbName, const std::string& userName, const std::string& password);

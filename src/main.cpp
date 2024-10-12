@@ -34,7 +34,36 @@ void printAscii() {
 auto main() -> int {
 	printAscii();
 
-	pgsqlInitialization::pgsqlInitializationManagementMenu();
+	int choice;
+	while (true) {
+		std::cout << "\n=== Main Menu ===" << std::endl;
+		std::cout << "1. Super User Management" << std::endl;
+		std::cout << "2. PostgreSQL Initialization" << std::endl;
+		std::cout << "3. Exit" << std::endl;
+		std::cout << "Enter your choice: ";
+		std::cin >> choice;
+
+		switch (choice) {
+			case 1: {
+				// 调用超级用户管理菜单
+				pgsqlSuperUser::sqlSuperUsersManagementMenu();
+				break;
+			}
+			case 2: {
+				// 调用PostgreSQL初始化菜单
+				pgsqlInitialization::pgsqlInitializationManagementMenu();
+				break;
+			}
+			case 3: {
+				std::cout << "Exiting..." << std::endl;
+				return 0;  // 退出程序
+			}
+			default: {
+				std::cout << "Invalid choice. Please try again." << std::endl;
+				break;
+			}
+		}
+	}
 
 	return 0;
 }

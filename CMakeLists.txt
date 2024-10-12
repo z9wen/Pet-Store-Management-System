@@ -51,14 +51,14 @@ enable_testing()
 add_executable(main_exe src/main.cpp
         src/test.h
         src/test.cpp
-        src/database_ini.cpp
-        src/database_ini.h
-        src/database_drop.cpp
-        src/database_drop.h
-        src/pgsql_superuser.cpp
-        src/pgsql_superuser.h
-        src/pgsql_management.h
-        src/pgsql_management.cpp)
+        src/pgsql/database_ini.cpp
+        src/pgsql/database_ini.h
+        src/pgsql/database_drop.cpp
+        src/pgsql/database_drop.h
+        src/pgsql/pgsql_superuser.cpp
+        src/pgsql/pgsql_superuser.h
+        src/pgsql/pgsql_management.h
+        src/pgsql/pgsql_management.cpp)
 
 # 测试程序
 add_executable(main_tests tests/main.test.cpp ../lib/catch_amalgamated.cpp

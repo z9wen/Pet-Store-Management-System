@@ -37,6 +37,7 @@ namespace pgsqlSuperUser {
 
 		if (PQresultStatus(res) != PGRES_TUPLES_OK) {
 			std::cerr << "Failed to retrieve superusers: " << PQerrorMessage(conn_) << std::endl;
+
 			PQclear(res);
 			return;
 		}

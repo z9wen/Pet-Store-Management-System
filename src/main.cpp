@@ -2,10 +2,9 @@
 #include <string>
 #include <vector>
 
-#include "database_drop.h"
-#include "database_ini.h"
-#include "pgsql_management.h"
-#include "pgsql_superuser.h"
+#include "pgsql/pgsql_superuser.h"
+#include "pgsql/database_ini.h"
+#include "pgsql/database_drop.h"
 #include "test.h"
 
 void printAscii() {

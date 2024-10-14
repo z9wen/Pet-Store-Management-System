@@ -129,7 +129,7 @@ namespace pgsqlInitialization {
 		std::string createUserSQL = "CREATE USER " + userName + " WITH ENCRYPTED PASSWORD '" + password + "';";
 		std::string createDatabaseSQL = "CREATE DATABASE " + dbName + ";";
 		std::string grantPrivilegesSQL = "GRANT ALL PRIVILEGES ON DATABASE " + dbName + " TO " + userName + ";";
-		std::string alterUserToSuperUserSQL = "ALTER USER " + userName + " WITH SUPERUSER;";  // grant to super user
+		std::string alterUserToSuperUserSQL = "ALTER USER " + userName + " WITH SUPERUSER;"; // grant to super user
 
 		// Execute user creation
 		PGresult* res = PQexec(conn_, createUserSQL.c_str());

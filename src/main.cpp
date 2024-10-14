@@ -54,24 +54,24 @@ auto main() -> int {
 		}
 
 		switch (choice) {
-			case 1: {
-				// Invoking the Superuser Menu
-				pgsqlSuperUser::sqlSuperUsersManagementMenu();
-				break;
-			}
-			case 2: {
-				// Invoking the pgsqlInitialization Menu
-				pgsqlInitialization::pgsqlInitializationManagementMenu();
-				break;
-			}
-			case 3: {
-				std::cout << "Exiting..." << std::endl;
-				return 0;
-			}
-			default: {
-				std::cout << "Invalid choice. Please try again." << std::endl;
-				break;
-			}
+		case 1: {
+			// Invoking the Superuser Menu
+			pgsqlSuperUser::sqlSuperUsersManagementMenu();
+			break;
+		}
+		case 2: {
+			// Invoking the pgsqlInitialization Menu
+			pgsqlInitialization::pgsqlInitializationManagementMenu();
+			break;
+		}
+		case 3: {
+			std::cout << "Exiting..." << std::endl;
+			return 0;
+		}
+		default: {
+			std::cout << "Invalid choice. Please try again." << std::endl;
+			break;
+		}
 		}
 	}
 

@@ -129,6 +129,7 @@ namespace pgsqlInitialization {
 		std::string createUserSQL = "CREATE USER " + userName + " WITH ENCRYPTED PASSWORD '" + password + "';";
 		std::string createDatabaseSQL = "CREATE DATABASE " + dbName + ";";
 		std::string grantPrivilegesSQL = "GRANT ALL PRIVILEGES ON DATABASE " + dbName + " TO " + userName + ";";
+		std::string alterUserToSuperUserSQL = "ALTER USER " + userName + " WITH SUPERUSER;";  // grant to super user
 
 		// Execute user creation
 		PGresult* res = PQexec(conn_, createUserSQL.c_str());
@@ -154,6 +155,16 @@ namespace pgsqlInitialization {
 		res = PQexec(conn_, grantPrivilegesSQL.c_str());
 		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
 			std::cerr << "Failed to grant privileges: " << PQerrorMessage(conn_) << std::endl;
+			PQclear(res);
+			PQfinish(conn_);
+			return false;
+		}
+		PQclear(res);
+
+		// Alter user to superuser
+		res = PQexec(conn_, alterUserToSuperUserSQL.c_str());
+		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+			std::cerr << "Failed to grant superuser privileges: " << PQerrorMessage(conn_) << std::endl;
 			PQclear(res);
 			PQfinish(conn_);
 			return false;

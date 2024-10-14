@@ -2,171 +2,126 @@
 #include <libpq-fe.h>
 #include <iostream>
 
-// drop products table
-bool dropProductsTable(PGconn* conn) {
-	const char* dropProductsSQL = "DROP TABLE IF EXISTS Products;";
-	PGresult* res = PQexec(conn, dropProductsSQL);
+namespace pgsqlDropDatabase {
+	// Constructor: Initializes the connection string with database, user, and password
+	DatabaseDropManager::DatabaseDropManager(const std::string& dbName,
+	                                         const std::string& userName,
+	                                         const std::string& password) {
+		conninfo_ = "dbname=" + dbName + " user=" + userName + " host=localhost port=5432";
+		if (!password.empty()) {
+			conninfo_ += " password=" + password;
+		}
+		conn_ = nullptr;
+	}
 
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop Products table: " << PQerrorMessage(conn) << std::endl;
+	// Destructor: Close the connection
+	DatabaseDropManager::~DatabaseDropManager() {
+		if (conn_) {
+			PQfinish(conn_);
+		}
+	}
+
+	// Connect to the database
+	bool DatabaseDropManager::connect() {
+		conn_ = PQconnectdb(conninfo_.c_str());
+		if (PQstatus(conn_) != CONNECTION_OK) {
+			std::cerr << "Connection to database failed: " << PQerrorMessage(conn_) << std::endl;
+			PQfinish(conn_);
+			conn_ = nullptr;
+			return false;
+		}
+		return true;
+	}
+
+	// Drop a specific table by name
+	bool DatabaseDropManager::dropSpecificTable(const std::string& tableName) {
+		std::string dropTableSQL = "DROP TABLE IF EXISTS " + tableName + ";";
+		return executeDrop(dropTableSQL.c_str(), tableName);
+	}
+
+	// Drop all tables
+	bool DatabaseDropManager::dropAllTables() {
+		if (!dropProductsTable() || !dropEmployeesTable() || !dropOrdersTable() || !dropOrderItemsTable()
+		    || !dropCustomersTable() || !dropSuppliersTable() || !dropInventoryActionsTable())
+		{
+			return false;
+		}
+		std::cout << "All tables dropped successfully." << std::endl;
+		return true;
+	}
+
+	// Drop a specific database
+	bool DatabaseDropManager::dropDatabase(const std::string& dbName,
+	                                       const std::string& superUserName,
+	                                       const std::string& superUserPassword) {
+		std::string conninfo = "dbname=postgres user=" + superUserName + " host=localhost port=5432";
+		if (!superUserPassword.empty()) {
+			conninfo += " password=" + superUserPassword;
+		}
+
+		PGconn* superuser_conn = PQconnectdb(conninfo.c_str());
+		if (PQstatus(superuser_conn) != CONNECTION_OK) {
+			std::cerr << "Connection to postgres database failed: " << PQerrorMessage(superuser_conn) << std::endl;
+			PQfinish(superuser_conn);
+			return false;
+		}
+
+		std::string dropDatabaseSQL = "DROP DATABASE IF EXISTS " + dbName + ";";
+		PGresult* res = PQexec(superuser_conn, dropDatabaseSQL.c_str());
+
+		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+			std::cerr << "Failed to drop database: " << PQerrorMessage(superuser_conn) << std::endl;
+			PQclear(res);
+			PQfinish(superuser_conn);
+			return false;
+		}
+
 		PQclear(res);
-		return false;
+		PQfinish(superuser_conn);
+		std::cout << "Database '" << dbName << "' dropped successfully." << std::endl;
+		return true;
 	}
-	PQclear(res);
-	return true;
-}
 
-// drop employees table
-bool dropEmployeesTable(PGconn* conn) {
-	const char* dropEmployeesTable = "DROP TABLE IF EXISTS Employees;";
-	PGresult* res = PQexec(conn, dropEmployeesTable);
-
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop Employees table: " << PQerrorMessage(conn) << std::endl;
+	// Private method to execute the drop table SQL commands
+	bool DatabaseDropManager::executeDrop(const char* dropSQL, const std::string& tableName) {
+		PGresult* res = PQexec(conn_, dropSQL);
+		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+			std::cerr << "Failed to drop " << tableName << " table: " << PQerrorMessage(conn_) << std::endl;
+			PQclear(res);
+			return false;
+		}
 		PQclear(res);
-		return false;
-	}
-	PQclear(res);
-	return true;
-}
-
-// drop orders table
-bool dropOrdersTable(PGconn* conn) {
-	const char* dropOrdersSQL = "DROP TABLE IF EXISTS Orders;";
-	PGresult* res = PQexec(conn, dropOrdersSQL);
-
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop Orders table: " << PQerrorMessage(conn) << std::endl;
-		PQclear(res);
-		return false;
-	}
-	PQclear(res);
-	return true;
-}
-
-// drop orderItems table
-bool dropOrderItemsTable(PGconn* conn) {
-	const char* dropOrderItemsSQL = "DROP TABLE IF EXISTS Order_Items;";
-	PGresult* res = PQexec(conn, dropOrderItemsSQL);
-
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop Order_Items table: " << PQerrorMessage(conn) << std::endl;
-		PQclear(res);
-		return false;
-	}
-	PQclear(res);
-	return true;
-}
-
-// drop customers table
-bool dropCustomersTable(PGconn* conn) {
-	const char* dropCustomersSQL = "DROP TABLE IF EXISTS Customers;";
-	PGresult* res = PQexec(conn, dropCustomersSQL);
-
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop Customers table: " << PQerrorMessage(conn) << std::endl;
-		PQclear(res);
-		return false;
-	}
-	PQclear(res);
-	return true;
-}
-
-// drop suppliers table
-bool dropSuppliersTable(PGconn* conn) {
-	const char* dropSuppliersSQL = "DROP TABLE IF EXISTS Suppliers;";
-	PGresult* res = PQexec(conn, dropSuppliersSQL);
-
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop Suppliers table: " << PQerrorMessage(conn) << std::endl;
-		PQclear(res);
-		return false;
-	}
-	PQclear(res);
-	return true;
-}
-
-// drop inventory actions table
-bool dropInventoryActionsTable(PGconn* conn) {
-	const char* dropInventoryActionsSQL = "DROP TABLE IF EXISTS Inventory_Actions;";
-	PGresult* res = PQexec(conn, dropInventoryActionsSQL);
-
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop Inventory_Actions table: " << PQerrorMessage(conn) << std::endl;
-		PQclear(res);
-		return false;
-	}
-	PQclear(res);
-	return true;
-}
-
-// drop all tables
-bool dropAllTables(const char* conninfo) {
-	PGconn* conn = PQconnectdb(conninfo);
-	if (PQstatus(conn) != CONNECTION_OK) {
-		std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
-		PQfinish(conn);
-		return false;
+		std::cout << tableName << " table dropped successfully." << std::endl;
+		return true;
 	}
 
-	if (!dropProductsTable(conn)) {
-		PQfinish(conn);
-		return false;
-	}
-	if (!dropEmployeesTable(conn)) {
-		PQfinish(conn);
-		return false;
-	}
-	if (!dropOrdersTable(conn)) {
-		PQfinish(conn);
-		return false;
-	}
-	if (!dropOrderItemsTable(conn)) {
-		PQfinish(conn);
-		return false;
-	}
-	if (!dropCustomersTable(conn)) {
-		PQfinish(conn);
-		return false;
-	}
-	if (!dropSuppliersTable(conn)) {
-		PQfinish(conn);
-		return false;
-	}
-	if (!dropInventoryActionsTable(conn)) {
-		PQfinish(conn);
-		return false;
+	// Drop individual tables
+	bool DatabaseDropManager::dropProductsTable() {
+		return executeDrop("DROP TABLE IF EXISTS Products;", "Products");
 	}
 
-	PQfinish(conn);
-	std::cout << "All tables dropped successfully." << std::endl;
-	return true;
-}
-
-bool dropDatabase(const std::string& dbName, const std::string& superUserName, const std::string& superUserPassword) {
-	std::string conninfo = "dbname=postgres user=" + superUserName
-	                       + (superUserPassword.empty() ? "" : " password=" + superUserPassword)
-	                       + " host=localhost port=5432";
-	PGconn* conn = PQconnectdb(conninfo.c_str());
-	if (PQstatus(conn) != CONNECTION_OK) {
-		std::cerr << "Connection to postgres database failed: " << PQerrorMessage(conn) << std::endl;
-		PQfinish(conn);
-		return false;
+	bool DatabaseDropManager::dropEmployeesTable() {
+		return executeDrop("DROP TABLE IF EXISTS Employees;", "Employees");
 	}
 
-	// Prepare SQL to drop the database
-	std::string dropDatabaseSQL = "DROP DATABASE IF EXISTS " + dbName + ";";
-
-	PGresult* res = PQexec(conn, dropDatabaseSQL.c_str());
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-		std::cerr << "Failed to drop database: " << PQerrorMessage(conn) << std::endl;
-		PQclear(res);
-		PQfinish(conn);
-		return false;
+	bool DatabaseDropManager::dropOrdersTable() {
+		return executeDrop("DROP TABLE IF EXISTS Orders;", "Orders");
 	}
 
-	PQclear(res);
-	PQfinish(conn);
-	std::cout << "Database '" << dbName << " ' dropped successfully." << std::endl;
-	return true;
-}
+	bool DatabaseDropManager::dropOrderItemsTable() {
+		return executeDrop("DROP TABLE IF EXISTS Order_Items;", "Order Items");
+	}
+
+	bool DatabaseDropManager::dropCustomersTable() {
+		return executeDrop("DROP TABLE IF EXISTS Customers;", "Customers");
+	}
+
+	bool DatabaseDropManager::dropSuppliersTable() {
+		return executeDrop("DROP TABLE IF EXISTS Suppliers;", "Suppliers");
+	}
+
+	bool DatabaseDropManager::dropInventoryActionsTable() {
+		return executeDrop("DROP TABLE IF EXISTS Inventory_Actions;", "Inventory Actions");
+	}
+
+} // namespace pgsqlDropDatabase

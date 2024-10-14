@@ -67,7 +67,7 @@ namespace pgsqlInitialization {
 	        name TEXT NOT NULL,  -- Name of the supplier
 	        contact_info TEXT,  -- Supplier's contact details
 	        product_id INTEGER,  -- Reference to the product supplied by this supplier (foreign key to Products table)
-	        is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete flag, marks whether the supplier is logically deleted
+	        is_deleted BOOLEAN DEFAULT FALSE,  -- Soft delete flag, marks whether the supplier is logically deleted
 	        FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
 	    );
 	)";

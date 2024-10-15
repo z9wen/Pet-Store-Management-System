@@ -95,7 +95,7 @@ namespace pgsqlSuperUser {
 	}
 
 	void sqlSuperUsersManagementMenuShow() {
-		std::cout << "==== PostgreSQL Superuser Management ====" << std::endl;
+		std::cout << "\n==== PostgreSQL Superuser Management ====" << std::endl;
 		std::cout << "1. Check if Superuser Exists" << std::endl;
 		std::cout << "2. Create Superuser" << std::endl;
 		std::cout << "3. List All Superusers" << std::endl;

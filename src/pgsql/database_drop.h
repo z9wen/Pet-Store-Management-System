@@ -43,6 +43,8 @@ namespace pgsqlDropDatabase {
 		// Execute the drop statement for a table
 		bool executeDrop(const char* dropSQL, const std::string& tableName);
 	};
+
+	void pgsqlDropManagementMenu();
 } // namespace pgsqlDropDatabase
 
 #endif // DATABASE_DROP_H

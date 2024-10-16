@@ -66,8 +66,23 @@ namespace pgsqlDropDatabase {
 			return false;
 		}
 
+		std::string terminateConnectionsSQL = "SELECT pg_terminate_backend(pg_stat_activity.pid) "
+		                                      "FROM pg_stat_activity "
+		                                      "WHERE pg_stat_activity.datname = '"
+		                                      + dbName
+		                                      + "' "
+		                                        "AND pid <> pg_backend_pid();";
+		PGresult* res = PQexec(superuser_conn, terminateConnectionsSQL.c_str());
+		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+			std::cerr << "Failed to terminate connections: " << PQerrorMessage(superuser_conn) << std::endl;
+			PQclear(res);
+			PQfinish(superuser_conn);
+			return false;
+		}
+		PQclear(res);
+
 		std::string dropDatabaseSQL = "DROP DATABASE IF EXISTS " + dbName + ";";
-		PGresult* res = PQexec(superuser_conn, dropDatabaseSQL.c_str());
+		res = PQexec(superuser_conn, dropDatabaseSQL.c_str());
 
 		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
 			std::cerr << "Failed to drop database: " << PQerrorMessage(superuser_conn) << std::endl;

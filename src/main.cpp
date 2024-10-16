@@ -66,6 +66,7 @@ auto main() -> int {
 		}
 		case 3: {
 			pgsqlDropDatabase::pgsqlDropManagementMenu();
+			break;
 		}
 		case 4: {
 			std::cout << "Exiting..." << std::endl;

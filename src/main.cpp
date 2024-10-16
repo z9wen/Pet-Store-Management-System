@@ -41,7 +41,8 @@ auto main() -> int {
 		std::cout << "\n=== Main Menu ===" << std::endl;
 		std::cout << "1. Super User Management" << std::endl;
 		std::cout << "2. PostgreSQL Initialization" << std::endl;
-		std::cout << "3. Exit" << std::endl;
+		std::cout << "3. Drop Database (Debug)" << std::endl;
+		std::cout << "4. Exit" << std::endl;
 		std::cout << "Enter your choice: ";
 		std::getline(std::cin, choice_str);
 
@@ -65,6 +66,7 @@ auto main() -> int {
 			break;
 		}
 		case 3: {
+			// Invoking the Drop Database Menu
 			pgsqlDropDatabase::pgsqlDropManagementMenu();
 			break;
 		}

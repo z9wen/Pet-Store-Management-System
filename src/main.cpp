@@ -64,7 +64,7 @@ auto main() -> int {
 			pgsqlInitialization::pgsqlInitializationManagementMenu();
 			break;
 		}
-			case 3: {
+		case 3: {
 			pgsqlDropDatabase::pgsqlDropManagementMenu();
 		}
 		case 4: {

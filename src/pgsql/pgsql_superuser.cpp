@@ -73,7 +73,7 @@ namespace pgsqlSuperUser {
 	}
 
 	// Creates a new superuser
-	bool PgSQLSuperUserManager::createSuperUser(const std::string& superUserName, const std::string& password) {
+	bool PgSQLSuperUserManager::createSuperUser(const std::string& superUserName, const std::string& password) const {
 		std::string createUserSQL = "CREATE USER " + superUserName + " WITH SUPERUSER CREATEDB CREATEROLE LOGIN";
 		if (!password.empty()) {
 			createUserSQL += " PASSWORD '" + password + "';";
@@ -94,7 +94,7 @@ namespace pgsqlSuperUser {
 		return true;
 	}
 
-	bool PgSQLSuperUserManager::dropSuperUser(const std::string& superUserName) {
+	bool PgSQLSuperUserManager::dropSuperUser(const std::string& superUserName) const {
 		if (superUserName == "postgres") {
 			std::cerr << "Error: You cannot drop the default 'postgres' superuser." << std::endl;
 			return false;
@@ -109,7 +109,7 @@ namespace pgsqlSuperUser {
 		PGresult* res = PQexec(conn_, dropUserSQL.c_str());
 
 		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-			std::cerr << "Failed to drop superuser: " << PQerrorMessage(conn_) << std;:endl;
+			std::cerr << "Failed to drop superuser: " << PQerrorMessage(conn_) << std::endl;
 			PQclear(res);
 			return false;
 		}

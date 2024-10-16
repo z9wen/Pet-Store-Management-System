@@ -26,10 +26,10 @@ namespace pgsqlSuperUser {
 		bool isUserSuperUser(const std::string& superUserName) const;
 
 		// Creates a new superuser
-		bool createSuperUser(const std::string& superUserName, const std::string& password);
+		bool createSuperUser(const std::string& superUserName, const std::string& password) const;
 
 		// Drop superuser
-		bool dropSuperUser(const std::string& superUserName);
+		bool dropSuperUser(const std::string& superUserName) const;
 
 	 private:
 		PGconn* conn_ = nullptr; // PostgreSQL connection object

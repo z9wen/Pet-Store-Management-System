@@ -94,12 +94,38 @@ namespace pgsqlSuperUser {
 		return true;
 	}
 
+	bool PgSQLSuperUserManager::dropSuperUser(const std::string& superUserName) {
+		if (superUserName == "postgres") {
+			std::cerr << "Error: You cannot drop the default 'postgres' superuser." << std::endl;
+			return false;
+		}
+
+		if (superUserName == PQuser(conn_)) {
+			std::cerr << "Error: You cannot drop yourself." << std::endl;
+			return false;
+		}
+
+		std::string dropUserSQL = "DROP ROLE IF EXISTS " + superUserName + ";";
+		PGresult* res = PQexec(conn_, dropUserSQL.c_str());
+
+		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+			std::cerr << "Failed to drop superuser: " << PQerrorMessage(conn_) << std;:endl;
+			PQclear(res);
+			return false;
+		}
+
+		PQclear(res);
+		std::cout << "Superuser '" << superUserName << "' dropped successfully." << std::endl;
+		return true;
+	}
+
 	void sqlSuperUsersManagementMenuShow() {
 		std::cout << "\n==== PostgreSQL Superuser Management ====" << std::endl;
 		std::cout << "1. Check if Superuser Exists" << std::endl;
 		std::cout << "2. Create Superuser" << std::endl;
 		std::cout << "3. List All Superusers" << std::endl;
-		std::cout << "4. Exit" << std::endl;
+		std::cout << "4. Drop Superuser" << std::endl; // New option to drop a superuser
+		std::cout << "5. Exit" << std::endl;
 		std::cout << "=========================================" << std::endl;
 		std::cout << "Enter your choice: ";
 	}
@@ -186,6 +212,18 @@ namespace pgsqlSuperUser {
 				break;
 			}
 			case 4: {
+				std::cout << "Enter the superuser name to drop: ";
+				std::cin >> superUserName;
+
+				if (manager.dropSuperUser(superUserName)) {
+					std::cout << "Superuser '" << superUserName << "' dropped successfully." << std::endl;
+				}
+				else {
+					std::cerr << "Failed to drop superuser '" << superUserName << "'." << std::endl;
+				}
+				break;
+			}
+			case 5: {
 				std::cout << "Exiting program." << std::endl;
 				return; // exit
 			}

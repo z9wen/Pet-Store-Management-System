@@ -99,11 +99,11 @@ namespace pgsqlDropDatabase {
 
 	bool DatabaseDropManager::dropDatabase(const std::string& dbName, PGconn* superuser_conn) {
 		std::string terminateConnectionsSQL = "SELECT pg_terminate_backend(pg_stat_activity.pid) "
-											  "FROM pg_stat_activity "
-											  "WHERE pg_stat_activity.datname = '"
-											  + dbName
-											  + "' "
-												"AND pid <> pg_backend_pid();";
+		                                      "FROM pg_stat_activity "
+		                                      "WHERE pg_stat_activity.datname = '"
+		                                      + dbName
+		                                      + "' "
+		                                        "AND pid <> pg_backend_pid();";
 		PGresult* res = PQexec(superuser_conn, terminateConnectionsSQL.c_str());
 		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
 			std::cerr << "Failed to terminate connections: " << PQerrorMessage(superuser_conn) << std::endl;
@@ -125,7 +125,6 @@ namespace pgsqlDropDatabase {
 		std::cout << "Database '" << dbName << "' dropped successfully." << std::endl;
 		return true;
 	}
-
 
 	// Private method to execute the drop table SQL commands
 	bool DatabaseDropManager::executeDrop(const char* dropSQL, const std::string& tableName) {
@@ -277,7 +276,8 @@ namespace pgsqlDropDatabase {
 
 				PGconn* superuser_conn = PQconnectdb(conninfo.c_str());
 				if (PQstatus(superuser_conn) != CONNECTION_OK) {
-					std::cerr << "Failed to connect to 'postgres' database: " << PQerrorMessage(superuser_conn) << std::endl;
+					std::cerr << "Failed to connect to 'postgres' database: " << PQerrorMessage(superuser_conn)
+					          << std::endl;
 					PQfinish(superuser_conn);
 					return;
 				}
@@ -285,7 +285,8 @@ namespace pgsqlDropDatabase {
 				// Terminate all connections to 'store_db' and drop it
 				if (dbDropManager.dropDatabase(dbName, superuser_conn)) {
 					std::cout << "Database '" << dbName << "' dropped successfully." << std::endl;
-				} else {
+				}
+				else {
 					std::cerr << "Failed to drop database '" << dbName << "'." << std::endl;
 				}
 

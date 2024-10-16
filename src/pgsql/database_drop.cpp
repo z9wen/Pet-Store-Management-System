@@ -146,31 +146,31 @@ namespace pgsqlDropDatabase {
 
 	// Drop individual tables
 	bool DatabaseDropManager::dropProductsTable() {
-		return executeDrop("DROP TABLE IF EXISTS Products;", "Products");
+		return executeDrop("DROP TABLE IF EXISTS Products CASCADE;", "Products");
 	}
 
 	bool DatabaseDropManager::dropEmployeesTable() {
-		return executeDrop("DROP TABLE IF EXISTS Employees;", "Employees");
+		return executeDrop("DROP TABLE IF EXISTS Employees CASCADE;", "Employees");
 	}
 
 	bool DatabaseDropManager::dropOrdersTable() {
-		return executeDrop("DROP TABLE IF EXISTS Orders;", "Orders");
+		return executeDrop("DROP TABLE IF EXISTS Orders CASCADE;", "Orders");
 	}
 
 	bool DatabaseDropManager::dropOrderItemsTable() {
-		return executeDrop("DROP TABLE IF EXISTS Order_Items;", "Order Items");
+		return executeDrop("DROP TABLE IF EXISTS Order_Items CASCADE;", "Order Items");
 	}
 
 	bool DatabaseDropManager::dropCustomersTable() {
-		return executeDrop("DROP TABLE IF EXISTS Customers;", "Customers");
+		return executeDrop("DROP TABLE IF EXISTS Customers CASCADE;", "Customers");
 	}
 
 	bool DatabaseDropManager::dropSuppliersTable() {
-		return executeDrop("DROP TABLE IF EXISTS Suppliers;", "Suppliers");
+		return executeDrop("DROP TABLE IF EXISTS Suppliers CASCADE;", "Suppliers");
 	}
 
 	bool DatabaseDropManager::dropInventoryActionsTable() {
-		return executeDrop("DROP TABLE IF EXISTS Inventory_Actions;", "Inventory Actions");
+		return executeDrop("DROP TABLE IF EXISTS Inventory_Actions CASCADE;", "Inventory Actions");
 	}
 
 	void pgsqlDropMenuShow() {

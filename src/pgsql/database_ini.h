@@ -25,6 +25,8 @@ namespace pgsqlInitialization {
 		// Method to check if a specific database exists
 		bool checkDatabaseExists(const std::string& dbName);
 
+		void listDatabases();
+
 	 private:
 		PGconn* conn_; // PostgreSQL connection object
 		std::string superUserConnInfo_; // Connection string for superuser

@@ -226,12 +226,43 @@ namespace pgsqlInitialization {
 		return true;
 	}
 
+	void DatabaseInitializer::listDatabases() {
+		conn_ = PQconnectdb(superUserConnInfo_.c_str());
+		if (PQstatus(conn_) != CONNECTION_OK) {
+			std::cerr << "Connection to database failed: " << PQerrorMessage(conn_) << std::endl;
+			PQfinish(conn_);
+			return;
+		}
+
+		// Query to get the list of databases
+		const char* query = "SELECT datname FROM pg_database WHERE datistemplate = false;";
+		PGresult* res = PQexec(conn_, query);
+
+		if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+			std::cerr << "Failed to retrieve databases: " << PQerrorMessage(conn_) << std::endl;
+			PQclear(res);
+			PQfinish(conn_);
+			return;
+		}
+
+		// Print the list of databases
+		int rows = PQntuples(res);
+		std::cout << "\nCurrent databases:\n";
+		for (int i = 0; i < rows; i++) {
+			std::cout << "- " << PQgetvalue(res, i, 0) << std::endl;
+		}
+
+		PQclear(res);
+		PQfinish(conn_);
+	}
+
 	void pgsqlInitializationMenuShow() {
 		std::cout << "\n==== PostgreSQL Database Management ====" << std::endl;
 		std::cout << "1. Check if Database Exists" << std::endl;
 		std::cout << "2. Create User and Database" << std::endl;
 		std::cout << "3. Initialize Tables" << std::endl;
-		std::cout << "4. Exit" << std::endl;
+		std::cout << "4. List Databases" << std::endl;
+		std::cout << "5. Exit" << std::endl;
 		std::cout << "========================================" << std::endl;
 		std::cout << "Enter your choice: ";
 	}
@@ -318,7 +349,11 @@ namespace pgsqlInitialization {
 				}
 				break;
 			}
-			case 4: { // exit
+			case 4: { // List databases
+				dbInitializer.listDatabases();
+				break;
+			}
+			case 5: { // exit
 				std::cout << "Exiting program..." << std::endl;
 				return;
 			}

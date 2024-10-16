@@ -23,7 +23,7 @@ namespace pgsqlDropDatabase {
 		bool dropSpecificTable(const std::string& tableName);
 
 		// Drop a specific database
-		bool dropDatabase(const std::string& dbName, const std::string& superUserName, const std::string& superUserPassword);
+		static bool dropDatabase(const std::string& dbName, PGconn* superuser_conn);
 
 		[[nodiscard]] PGconn* getConnection() const;
 

@@ -51,32 +51,63 @@ namespace pgsqlDropDatabase {
 	}
 
 	// Drop a specific database
-	bool DatabaseDropManager::dropDatabase(const std::string& dbName,
-	                                       const std::string& superUserName,
-	                                       const std::string& superUserPassword) {
-		std::string conninfo = "dbname=postgres user=" + superUserName + " host=localhost port=5432";
-		if (!superUserPassword.empty()) {
-			conninfo += " password=" + superUserPassword;
-		}
+	// bool DatabaseDropManager::dropDatabase(const std::string& dbName,
+	//                                        const std::string& superUserName,
+	//                                        const std::string& superUserPassword) {
+	// 	std::string conninfo = "dbname=postgres user=" + superUserName + " host=localhost port=5432";
+	// 	if (!superUserPassword.empty()) {
+	// 		conninfo += " password=" + superUserPassword;
+	// 	}
+	//
+	// 	PGconn* superuser_conn = PQconnectdb(conninfo.c_str());
+	// 	if (PQstatus(superuser_conn) != CONNECTION_OK) {
+	// 		std::cerr << "Connection to postgres database failed: " << PQerrorMessage(superuser_conn) << std::endl;
+	// 		PQfinish(superuser_conn);
+	// 		return false;
+	// 	}
+	//
+	// 	std::string terminateConnectionsSQL = "SELECT pg_terminate_backend(pg_stat_activity.pid) "
+	// 	                                      "FROM pg_stat_activity "
+	// 	                                      "WHERE pg_stat_activity.datname = '"
+	// 	                                      + dbName
+	// 	                                      + "' "
+	// 	                                        "AND pid <> pg_backend_pid();";
+	// 	PGresult* res = PQexec(superuser_conn, terminateConnectionsSQL.c_str());
+	// 	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+	// 		std::cerr << "Failed to terminate connections: " << PQerrorMessage(superuser_conn) << std::endl;
+	// 		PQclear(res);
+	// 		PQfinish(superuser_conn);
+	// 		return false;
+	// 	}
+	// 	PQclear(res);
+	//
+	// 	std::string dropDatabaseSQL = "DROP DATABASE IF EXISTS " + dbName + ";";
+	// 	res = PQexec(superuser_conn, dropDatabaseSQL.c_str());
+	//
+	// 	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+	// 		std::cerr << "Failed to drop database: " << PQerrorMessage(superuser_conn) << std::endl;
+	// 		PQclear(res);
+	// 		PQfinish(superuser_conn);
+	// 		return false;
+	// 	}
+	//
+	// 	PQclear(res);
+	// 	PQfinish(superuser_conn);
+	// 	std::cout << "Database '" << dbName << "' dropped successfully." << std::endl;
+	// 	return true;
+	// }
 
-		PGconn* superuser_conn = PQconnectdb(conninfo.c_str());
-		if (PQstatus(superuser_conn) != CONNECTION_OK) {
-			std::cerr << "Connection to postgres database failed: " << PQerrorMessage(superuser_conn) << std::endl;
-			PQfinish(superuser_conn);
-			return false;
-		}
-
+	bool DatabaseDropManager::dropDatabase(const std::string& dbName, PGconn* superuser_conn) {
 		std::string terminateConnectionsSQL = "SELECT pg_terminate_backend(pg_stat_activity.pid) "
-		                                      "FROM pg_stat_activity "
-		                                      "WHERE pg_stat_activity.datname = '"
-		                                      + dbName
-		                                      + "' "
-		                                        "AND pid <> pg_backend_pid();";
+											  "FROM pg_stat_activity "
+											  "WHERE pg_stat_activity.datname = '"
+											  + dbName
+											  + "' "
+												"AND pid <> pg_backend_pid();";
 		PGresult* res = PQexec(superuser_conn, terminateConnectionsSQL.c_str());
 		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
 			std::cerr << "Failed to terminate connections: " << PQerrorMessage(superuser_conn) << std::endl;
 			PQclear(res);
-			PQfinish(superuser_conn);
 			return false;
 		}
 		PQclear(res);
@@ -87,15 +118,14 @@ namespace pgsqlDropDatabase {
 		if (PQresultStatus(res) != PGRES_COMMAND_OK) {
 			std::cerr << "Failed to drop database: " << PQerrorMessage(superuser_conn) << std::endl;
 			PQclear(res);
-			PQfinish(superuser_conn);
 			return false;
 		}
 
 		PQclear(res);
-		PQfinish(superuser_conn);
 		std::cout << "Database '" << dbName << "' dropped successfully." << std::endl;
 		return true;
 	}
+
 
 	// Private method to execute the drop table SQL commands
 	bool DatabaseDropManager::executeDrop(const char* dropSQL, const std::string& tableName) {
@@ -157,9 +187,9 @@ namespace pgsqlDropDatabase {
 		std::string dbName, userName, password, superUserName, superUserPassword, tableName;
 		int choice;
 
-		std::cout << "Enter database name: ";
+		std::cout << "Enter database name(Name of database operated on) : ";
 		std::getline(std::cin, dbName);
-		std::cout << "Enter username: ";
+		std::cout << "Enter username(the username used to connect to this database) : ";
 		std::getline(std::cin, userName);
 		std::cout << "Enter password (leave blank for no password): ";
 		std::getline(std::cin, password);
@@ -237,12 +267,30 @@ namespace pgsqlDropDatabase {
 				std::cout << "Enter superuser password (leave blank for no password): ";
 				std::getline(std::cin, superUserPassword);
 
-				if (dbDropManager.dropDatabase(dbName, superUserName, superUserPassword)) {
-					std::cout << "Database '" << dbName << "' dropped successfully." << std::endl;
+				std::cout << "Reconnecting to the 'postgres' database to drop the target database..." << std::endl;
+
+				// use postgres reconnect
+				std::string conninfo = "dbname=postgres user=" + superUserName + " host=localhost port=5432";
+				if (!superUserPassword.empty()) {
+					conninfo += " password=" + superUserPassword;
 				}
-				else {
+
+				PGconn* superuser_conn = PQconnectdb(conninfo.c_str());
+				if (PQstatus(superuser_conn) != CONNECTION_OK) {
+					std::cerr << "Failed to connect to 'postgres' database: " << PQerrorMessage(superuser_conn) << std::endl;
+					PQfinish(superuser_conn);
+					return;
+				}
+
+				// Terminate all connections to 'store_db' and drop it
+				if (dbDropManager.dropDatabase(dbName, superuser_conn)) {
+					std::cout << "Database '" << dbName << "' dropped successfully." << std::endl;
+				} else {
 					std::cerr << "Failed to drop database '" << dbName << "'." << std::endl;
 				}
+
+				PQfinish(superuser_conn);
+
 				return; // exit after dropping the database
 			}
 			case 4: {

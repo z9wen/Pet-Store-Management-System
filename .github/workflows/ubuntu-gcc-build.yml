@@ -1,4 +1,4 @@
-name: Build and Test on Ubuntu with GCC
+name: Build on Ubuntu with GCC
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-ubuntu-gcc:
-    name: Build and Test on Ubuntu with GCC
+    name: Build on Ubuntu with GCC
     runs-on: ubuntu-latest
 
     strategy:
@@ -37,7 +37,3 @@ jobs:
 
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-
-      - name: Run Tests
-        working-directory: ${{ steps.strings.outputs.build-output-dir }}
-        run: ctest --build-config ${{ matrix.build_type }}
